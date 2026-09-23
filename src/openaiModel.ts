@@ -17,9 +17,10 @@ const suggestionSchema = {
           kind: { type: "string", enum: ["question", "action"] },
           text: { type: "string" },
           reason: { type: "string" },
-          evidenceQuotes: { type: "array", items: { type: "string" } }
+          evidenceQuotes: { type: "array", items: { type: "string" } },
+          repairOptionId: { type: ["string", "null"] }
         },
-        required: ["kind", "text", "reason", "evidenceQuotes"]
+        required: ["kind", "text", "reason", "evidenceQuotes", "repairOptionId"]
       }
     }
   },
@@ -54,9 +55,17 @@ export class OpenAIModel implements SuggestionModel {
           "Summarize reported facts; identify missing or conflicting details.",
           "Suggest at most three useful questions or actions for the worker to consider.",
           "Do not claim a diagnosis or invent vehicle facts. The worker decides what to say or do.",
-          "For every suggestion, provide at least one short exact transcript substring in evidenceQuotes."
+          "For every suggestion, provide at least one short exact transcript substring in evidenceQuotes.",
+          "Repair options are mock client data. Recommend a repair option only when its location, slot and towing acceptance fit the call.",
+          "If recommending one, use its exact ID as repairOptionId and include its exact name, address and appointment in text.",
+          "Otherwise use null. Never claim an appointment has been booked."
         ].join(" "),
-        input: JSON.stringify({ transcript: call.transcript, vehicle: call.vehicle ?? null }),
+        input: JSON.stringify({
+          callDate: call.callDate ?? null,
+          transcript: call.transcript,
+          vehicle: call.vehicle ?? null,
+          repairOptions: call.repairOptions ?? []
+        }),
         text: {
           format: {
             type: "json_schema", name: "worker_suggestions", strict: true,

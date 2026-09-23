@@ -12,18 +12,24 @@ function texts(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(text);
 }
 
-function validSuggestion(value: unknown, transcript: string): value is Suggestion {
+function validSuggestion(value: unknown, call: Call): value is Suggestion {
   if (!object(value)) return false;
-  return (value.kind === "question" || value.kind === "action") &&
+  const optionId = value.repairOptionId;
+  const option = call.repairOptions?.find(item => item.id === optionId);
+  const validOption = optionId === null ||
+    (value.kind === "action" && option !== undefined && typeof value.text === "string" &&
+      value.text.includes(option.name) && value.text.includes(option.address) &&
+      value.text.includes(option.appointment));
+  return validOption && (value.kind === "question" || value.kind === "action") &&
     text(value.text) && text(value.reason) && texts(value.evidenceQuotes) &&
     value.evidenceQuotes.length > 0 &&
-    value.evidenceQuotes.every(quote => transcript.includes(quote));
+    value.evidenceQuotes.every(quote => call.transcript.includes(quote));
 }
 
 export function validateAgentResult(raw: unknown, call: Call): AgentResult {
   if (!object(raw) || !text(raw.summary) || !texts(raw.missingInformation) ||
       !Array.isArray(raw.suggestions) || raw.suggestions.length > 3 ||
-      !raw.suggestions.every(item => validSuggestion(item, call.transcript))) {
+      !raw.suggestions.every(item => validSuggestion(item, call))) {
     throw new Error("Invalid suggestion response");
   }
   return {

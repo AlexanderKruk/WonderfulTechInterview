@@ -2,6 +2,17 @@ export type Call = {
   id: string;
   transcript: string;
   vehicle?: string;
+  callDate?: string;
+  repairOptions?: RepairOption[];
+};
+
+export type RepairOption = {
+  id: string;
+  name: string;
+  area: string;
+  address: string;
+  appointment: string;
+  acceptsTowedCars: boolean;
 };
 
 export type Suggestion = {
@@ -9,6 +20,7 @@ export type Suggestion = {
   text: string;
   reason: string;
   evidenceQuotes: string[];
+  repairOptionId: string | null;
 };
 
 export type AgentResult = {

@@ -19,7 +19,7 @@ curl http://localhost:3000/calls/mock-001
 curl -X POST http://localhost:3000/calls/mock-001/suggestions
 ```
 
-The mock client also has `mock-002` (vague complaint) and `mock-003` (conflicting statements). An unknown call ID returns 404. The service listens on port 3000 by default; set `PORT` to override it.
+The mock client also has `mock-002` (vague complaint) and `mock-003` (conflicting statements). `mock-001` includes two **fictional** repair places, their addresses, appointment times, and towing acceptance. Its sample response suggests the Mokotów option because the customer is in Mokotów, wants an afternoon slot, and may need towing. The fixture is dated 23 September 2026; its slots are illustrative, not live availability. An unknown call ID returns 404. The service listens on port 3000 by default; set `PORT` to override it.
 
 ## Use the AI model
 
@@ -29,7 +29,7 @@ Set `AI_MODE=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL` before starting the s
 AI_MODE=openai OPENAI_API_KEY=your_key OPENAI_MODEL=your_model npm run dev
 ```
 
-The OpenAI adapter sends the mock transcript to the Responses API with a strict JSON schema and `store: false`. It validates the returned fields and checks that every suggestion cites an exact substring of the transcript. A missing model configuration returns 503; model failures or invalid output return 502. Do not put a real client transcript into the mock fixtures.
+The OpenAI adapter sends the mock transcript and repair options to the Responses API with a strict JSON schema and `store: false`. It validates the returned fields, checks that every suggestion cites an exact substring of the transcript, and verifies that a suggested repair option exists in the mock data with matching name, address, and appointment text. A missing model configuration returns 503; model failures or invalid output return 502. Do not put a real client transcript into the mock fixtures.
 
 ## Check the project
 
